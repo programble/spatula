@@ -9,10 +9,6 @@ LispNumber: class extends LispObject {
     new: static func ~float (value: Float) -> LispFloat {
         LispFloat new(value)
     }
-    
-    new: static func ~fraction (numerator: Int, denominator: Int) -> LispFraction {
-        LispFraction new(numerator, denominator)
-    }
 }
 
 LispInt: class extends LispNumber {
@@ -40,26 +36,5 @@ LispFloat: class extends LispNumber {
     
     equals?: func (other: LispObject) -> Bool {
         super(other) && this value == other as This value
-    }
-}
-
-LispFraction: class extends LispNumber {
-    numerator: Int
-    denominator: Int
-    
-    init: func (=numerator, =denominator)
-    
-    toString: func -> String {
-        "%d/%d" format(numerator, denominator)
-    }
-    
-    equals?: func (other: LispObject) -> Bool {
-        // TODO: Compare reduced ratios
-        false
-    }
-    
-    evaluate: func (scope: Scope<LispObject>) -> LispObject {
-        // TODO: Reduce fraction
-        this
     }
 }
