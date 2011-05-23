@@ -53,3 +53,11 @@ Namespace: class <V> extends Scope<V> {
         map contains?(key)
     }
 }
+
+operator [] <V> (scope: Scope<V>, key: String) -> V {
+    scope get(key)
+}
+
+operator []= <V> (scope: Scope<V>, key: String, value: V) {
+    scope put(key, value)
+}
