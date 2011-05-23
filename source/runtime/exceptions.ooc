@@ -6,6 +6,6 @@ NotCallableException: class extends Exception {
 
 UndefinedException: class extends Exception {
     init: func (symbol: String) {
-        message = "'%s' is not defined" format(name)
+        message = "'%s' is not defined" format(symbol)
     }
 }
