@@ -2,7 +2,7 @@ import io/[Reader, StringReader]
 import structs/ArrayList
 import text/EscapeSequence
 
-import runtime/[LispObject, LispSymbol, LispKeyword, LispNumber]
+import runtime/[LispObject, LispSymbol, LispKeyword, LispNumber, LispCharacter]
 
 // Extra Reader methods
 // TODO: Perhaps move this to another file or get this merged into the
@@ -110,6 +110,7 @@ LispReader: class {
         } else match (dispatch) {
             case ')' => SyntaxException new("Mismatched parentheses") throw()
             case ':' => readKeyword()
+            case '\\' => readCharacter()
             case ';' => // Comment
                 reader skipLine()
                 null
@@ -149,5 +150,14 @@ LispReader: class {
                 SyntaxException new("Invalid integer literal") throw()
             }
         }
-    }  
+    }
+    
+    readCharacter: func -> LispCharacter {
+        // Skip over \ 
+        reader read()
+        if (!reader hasNext?()) {
+            EOFException new(LispCharacter) throw()
+        }
+        return LispCharacter new(reader read())
+    }
 }

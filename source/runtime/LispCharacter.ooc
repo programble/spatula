@@ -6,6 +6,7 @@ LispCharacter: class extends LispObject {
     init: func (=value)
     
     toString: func -> String {
+        // TODO: Special cases
         "\\%c" format(value)
     }
     
