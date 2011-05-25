@@ -18,7 +18,7 @@ main: func {
             reader := LispReader new(input)
             exprs := reader readAll()
             for (expr in exprs) {
-                expr evaluate(namespace) toString() println()
+                expr evaluate(namespace) inspect() println()
             }
         } catch (e: Exception) {
             e print()

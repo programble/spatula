@@ -4,8 +4,12 @@ import exceptions
 import ../Scope
 
 LispObject: abstract class {
-    toString: func -> String {
+    inspect: func -> String {
         "#<%s:%p>" format(this class name, this)
+    }
+    
+    toString: func -> String {
+        this inspect()
     }
     
     equals?: func (other: LispObject) -> Bool {

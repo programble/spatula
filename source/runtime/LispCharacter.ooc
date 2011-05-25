@@ -5,9 +5,13 @@ LispCharacter: class extends LispObject {
     
     init: func (=value)
     
-    toString: func -> String {
+    inspect: func -> String {
         // TODO: Special cases
         "\\%c" format(value)
+    }
+    
+    toString: func -> String {
+        "%c" format(value)
     }
     
     equals?: func (other: LispObject) -> Bool {

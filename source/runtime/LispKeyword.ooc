@@ -5,8 +5,12 @@ LispKeyword: class extends LispObject {
     
     init: func (=value)
     
-    toString: func -> String {
+    inspect: func -> String {
         ":%s" format(value)
+    }
+    
+    toString: func -> String {
+        value
     }
     
     equals?: func (other: LispObject) -> Bool {

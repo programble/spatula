@@ -7,7 +7,7 @@ LispSymbol: class extends LispObject {
     
     init: func (=value)
     
-    toString: func -> String {
+    inspect: func -> String {
         value
     }
     

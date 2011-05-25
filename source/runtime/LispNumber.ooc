@@ -16,7 +16,7 @@ LispInt: class extends LispNumber {
     
     init: func (=value)
     
-    toString: func -> String {
+    inspect: func -> String {
         value toString()
     }
     
@@ -30,7 +30,7 @@ LispFloat: class extends LispNumber {
     
     init: func (=value)
     
-    toString: func -> String {
+    inspect: func -> String {
         value toString()
     }
     
