@@ -2,7 +2,7 @@ import io/[Reader, StringReader]
 import structs/ArrayList
 import text/EscapeSequence
 
-import runtime/[LispObject, LispSymbol, LispKeyword, LispNumber, LispCharacter]
+import runtime/[LispObject, LispSymbol, LispKeyword, LispNumber, LispCharacter, LispString]
 
 // Extra Reader methods
 // TODO: Perhaps move this to another file or get this merged into the
@@ -91,8 +91,7 @@ LispReader: class {
     }
     
     read: func -> LispObject {
-        // Skip leading whitespace
-        skipWhitespace()
+        skipWhitespace() // Skip leading whitespace
         
         dispatch := reader peek()
         
@@ -111,6 +110,7 @@ LispReader: class {
             case ')' => SyntaxException new("Mismatched parentheses") throw()
             case ':' => readKeyword()
             case '\\' => readCharacter()
+            case '"' => readString()
             case ';' => // Comment
                 reader skipLine()
                 null
@@ -153,11 +153,24 @@ LispReader: class {
     }
     
     readCharacter: func -> LispCharacter {
-        // Skip over \ 
-        reader read()
+        reader read() // Skip over \ 
         if (!reader hasNext?()) {
             EOFException new(LispCharacter) throw()
         }
         return LispCharacter new(reader read())
+    }
+    
+    readString: func -> LispString {
+        reader read() // Skip leading "
+        if (!reader hasNext?()) {
+            EOFException new(LispString) throw()
+        }
+        str := reader readUntil('"')
+        // Verify the string has a closing "
+        reader rewind(1)
+        if (reader read() != '"') {
+            EOFException new(LispString) throw()
+        }
+        return LispString new(EscapeSequence unescape(str))
     }
 }
