@@ -58,8 +58,6 @@ EOFException: class extends SyntaxException {
     }
 }
 
-WHITESPACE: const String = " \t\r\n"
-
 // Where the real magic happens
 LispReader: class {
     // Yo dwag i herd u liek readers
@@ -76,7 +74,7 @@ LispReader: class {
     }
     
     skipWhitespace: func {
-        reader skipWhile(WHITESPACE)
+        reader skipWhile(" \t\r\n")
     }
     
     readAll: func -> ArrayList<LispObject> {
@@ -119,18 +117,18 @@ LispReader: class {
     }   
     
     readSymbol: func -> LispSymbol {
-        str := reader readUntil(WHITESPACE)
+        str := reader readUntil(" \t\r\n)")
         return LispSymbol new(str)
     }
     
     readKeyword: func -> LispKeyword {
         reader read() // Skip leading :
-        str := reader readUntil(WHITESPACE)
+        str := reader readUntil(" \t\r\n)")
         return LispKeyword new(str)
     }
     
     readNumber: func -> LispNumber {
-        str := reader readUntil(WHITESPACE)
+        str := reader readUntil(" \t\r\n)")
         if (str contains?('.')) {
             f: Float
             c: Char // Hack to detect trailing garbage
