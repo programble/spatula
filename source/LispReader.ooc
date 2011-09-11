@@ -90,6 +90,9 @@ LispReader: class {
     
     read: func -> LispObject {
         skipWhitespace() // Skip leading whitespace
+        if (!hasNext?()) {
+            return null
+        }
         
         dispatch := reader peek()
         
