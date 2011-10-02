@@ -1,11 +1,11 @@
-ROCK := rock
+OOC := rock
 
-override ROCKFLAGS += -g +-rdynamic -v
+OOCFLAGS := -g +-rdynamic -v
 
-SOURCES := $(wildcard source/*) $(wildcard source/*/*)
+SOURCES := $(shell find source/ -name '*.ooc')
 
 spatula: $(SOURCES) Makefile
-	$(ROCK) $(ROCKFLAGS) source/spatula.ooc
+	$(OOC) $(OOCFLAGS) source/spatula.ooc
 
 clean:
 	rm -f spatula
