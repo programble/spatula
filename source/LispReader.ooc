@@ -2,50 +2,9 @@ import io/[Reader, StringReader]
 import structs/ArrayList
 import text/EscapeSequence
 
-import runtime/[LispObject, LispSymbol, LispKeyword, LispNumber, LispCharacter, LispString]
+import ReaderExtensions
 
-// Extra Reader methods
-// TODO: Perhaps move this to another file or get this merged into the
-//       sdk proper
-extend Reader {
-    readWhile: func (chars: String) -> String {
-        // Based on readUntil
-        sb := Buffer new(1024)
-        while (hasNext?()) {
-            c := read()
-            if (!chars contains?(c) || (!hasNext?() && c == 8)) {
-                break
-            }
-            sb append(c)
-        }
-        return sb toString()
-    }
-    
-    skipWhile: func ~chars (chars: String) {  
-        // Based on skipWhile
-        while (hasNext?()) {
-            c := read()
-            if (!chars contains?(c)) {
-                rewind(1)
-                break
-            }
-        }
-    }
-    
-    readUntil: func ~chars (chars: String) -> String {
-        // Based on readUntil
-        sb := Buffer new(1024)
-        while (hasNext?()) {
-            c := read()
-            if (chars contains?(c) || (!hasNext?() && c == 8)) {
-                rewind(1)
-                break
-            }
-            sb append(c)
-        }
-        return sb toString()
-    }
-}
+import runtime/[LispObject, LispSymbol, LispKeyword, LispNumber, LispCharacter, LispString]
 
 // Reader Exceptions
 SyntaxException: class extends Exception {
