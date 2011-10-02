@@ -6,61 +6,55 @@ import ReaderExtensions
 
 import runtime/[LispObject, LispSymbol, LispKeyword, LispNumber, LispCharacter, LispString]
 
-// Reader Exceptions
 SyntaxException: class extends Exception {
     init: func (=message)
 }
 
 EOFException: class extends SyntaxException {
     init: func (clazz: Class) {
-        message = "Unexpected EOF while reading %s" format(clazz name)
+        super("Unexpected EOF while reading %s" format(clazz name))
     }
 }
 
-// Where the real magic happens
 LispReader: class {
-    // Yo dwag i herd u liek readers
+    DELIMETER: static const String = " \t\r\n)"
+
     reader: Reader
-    
+
     init: func (=reader)
-    
+
     init: func ~string (str: String) {
         init(StringReader new(str))
     }
-    
+
     hasNext?: func -> Bool {
+        skipWhitespace() // This seems horrible to do in here
         reader hasNext?()
     }
-    
+
     skipWhitespace: func {
         reader skipWhile(" \t\r\n")
     }
-    
+
     readAll: func -> ArrayList<LispObject> {
         all := ArrayList<LispObject> new()
         while (hasNext?()) {
-            x := read()
-            if (x != null) {
-                all add(x)
-            }
+            all add(read())
         }
-        return all
+        all
     }
-    
+
     read: func -> LispObject {
-        skipWhitespace() // Skip leading whitespace
-        if (!hasNext?()) {
-            return null
-        }
-        
+        if (!hasNext?()) return null
+
         dispatch := reader peek()
-        
+
         if (dispatch >= '0' && dispatch <= '9') {
             readNumber()
         } else if (dispatch == '-' && hasNext?()) {
-            reader read() // Skip over - for now
-            next := reader read()
-            reader rewind(2) // Go back to -
+            reader read()
+            next := reader read() // Get the character after the -
+            reader rewind(2) // Then go back to the -
             if (next >= '0' && next <= '9') {
                 readNumber()
             } else {
@@ -68,69 +62,75 @@ LispReader: class {
             }
         } else match (dispatch) {
             case ')' => SyntaxException new("Mismatched parentheses") throw()
+            //case '(' => readList()
             case ':' => readKeyword()
             case '\\' => readCharacter()
             case '"' => readString()
             case ';' => // Comment
                 reader skipLine()
-                null
-            case => readSymbol()
+                if (hasNext?()) {
+                    read()
+                } else {
+                    null
+                }
+            case => readSymbol() // So lenient with symbols...
         }
-    }   
-    
+    }
+
     readSymbol: func -> LispSymbol {
-        str := reader readUntil(" \t\r\n)")
-        return LispSymbol new(str)
+        s := reader readUntil(DELIMETER)
+        LispSymbol new(s)
     }
-    
+
     readKeyword: func -> LispKeyword {
-        reader read() // Skip leading :
-        str := reader readUntil(" \t\r\n)")
-        return LispKeyword new(str)
+        reader read() // Skip :
+        s := reader readUntil(DELIMETER)
+        LispKeyword new(s)
     }
-    
+
     readNumber: func -> LispNumber {
-        str := reader readUntil(" \t\r\n)")
-        if (str contains?('.')) {
+        s := reader readUntil(DELIMETER)
+        if (s contains?('.')) {
             f: Float
-            c: Char // Hack to detect trailing garbage
-            valid: Int = sscanf(str, "%f%c", f&, c&)
+            c: Char // Dummy var
+            valid := sscanf(s, "%f%c", f&, c&)
             if (valid == 1) {
-                return LispNumber new(f)
+                LispNumber new(f)
             } else {
-                SyntaxException new("Invalid float literal") throw()
+                SyntaxException new("Invalid float literal: %s" format(s)) throw()
             }
         } else {
             i: Int
             c: Char
-            valid: Int = sscanf(str, "%i%c", i&, c&)
+            valid := sscanf(s, "%i%c", i&, c&)
             if (valid == 1) {
-                return LispNumber new(i)
+                LispNumber new(i)
             } else {
-                SyntaxException new("Invalid integer literal") throw()
+                SyntaxException new("Invalid integer literal: %s" format(s)) throw()
             }
         }
     }
-    
+
     readCharacter: func -> LispCharacter {
-        reader read() // Skip over \ 
+        reader read() // Skip \     
         if (!reader hasNext?()) {
             EOFException new(LispCharacter) throw()
         }
-        return LispCharacter new(reader read())
+        LispCharacter new(reader read())
     }
-    
+
     readString: func -> LispString {
-        reader read() // Skip leading "
+        reader read() // Skip "
         if (!reader hasNext?()) {
             EOFException new(LispString) throw()
         }
-        str := reader readUntil('"')
-        // Verify the string has a closing "
+        // TODO: Handle escaped quotes
+        s := reader readUntil('"')
+        // Verify string is closed
         reader rewind(1)
         if (reader read() != '"') {
             EOFException new(LispString) throw()
         }
-        return LispString new(EscapeSequence unescape(str))
+        LispString new(EscapeSequence unescape(s))
     }
 }
