@@ -11,9 +11,7 @@ main: func {
     while (true) {
         "=> " print()
         input := stdin readLine()
-        if (input == "") {
-            break
-        }
+        if (input == "" && !stdin hasNext?()) break
         try {
             reader := LispReader new(input)
             exprs := reader readAll()
